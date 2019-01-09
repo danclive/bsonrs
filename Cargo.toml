@@ -1,0 +1,29 @@
+[package]
+name          = "bsonrs"
+version       = "0.1.0"
+license       = "MIT"
+authors       = ["danc <dangcheng@hotmail.com>"]
+description   = "bson data-interchange format"
+documentation = "https://docs.rs/bsonrs"
+homepage      = "https://github.com/danclive/bsonrs"
+repository    = "https://github.com/danclive/bsonrs"
+readme        = "README.md"
+keywords      = ["bson"]
+edition 	  = "2018"
+exclude       = [
+  ".gitignore",
+  ".travis.yml",
+  "deploy.sh",
+  "test/**/*",
+]
+
+[dependencies]
+linked-hash-map = "0.5"
+chrono = "0.4"
+byteorder = "1.1"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+serde_bytes = "0.10"
+libc = "0.2"
+rand = "0.5"
