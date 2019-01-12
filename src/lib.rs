@@ -1,12 +1,6 @@
-extern crate linked_hash_map;
-extern crate chrono;
-extern crate serde;
-extern crate byteorder;
-
 pub use self::value::Value;
 pub use self::doc::Document;
 
-#[macro_use]
 mod macros;
 pub mod value;
 pub mod doc;
@@ -24,6 +18,7 @@ mod test {
 	use crate::encode::to_bson;
 	use crate::decode::from_bson;
 	use crate::Value;
+	use crate::doc;
 
 	#[derive(Serialize, Deserialize, Debug, PartialEq)]
 	pub struct Foo {

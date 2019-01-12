@@ -8,7 +8,7 @@ use serde::de::{self, Deserialize, Deserializer, Visitor, MapAccess, SeqAccess, 
                 DeserializeSeed, EnumAccess};
 use serde::de::{Error, Expected, Unexpected};
 
-use linked_hash_map::LinkedHashMap;
+use indexmap::IndexMap;
 
 use crate::value::{Value, Array, UTCDateTime};
 use crate::doc::{Document, IntoIter};
@@ -233,8 +233,8 @@ impl<'de> Visitor<'de> for DocumentVisitor {
         where V: MapAccess<'de>
     {
         let mut inner = match visitor.size_hint() {
-            Some(size) => LinkedHashMap::with_capacity(size),
-            None => LinkedHashMap::new(),
+            Some(size) => IndexMap::with_capacity(size),
+            None => IndexMap::new(),
         };
 
         while let Some((key, value)) = visitor.next_entry()? {

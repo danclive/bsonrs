@@ -3,8 +3,10 @@ use std::fmt;
 use std::io::{Write, Read, Cursor};
 use std::mem;
 use std::iter::{FromIterator, Extend};
+use std::cmp::Ordering;
+use std::ops::RangeFull;
 
-use linked_hash_map::LinkedHashMap;
+use indexmap::IndexMap;
 use chrono::{DateTime, Utc};
 use byteorder::WriteBytesExt;
 
@@ -14,7 +16,7 @@ use crate::decode::{decode_document, DecodeResult};
 use crate::spec::BinarySubtype;
 use crate::object_id::ObjectId;
 
-pub use linked_hash_map::{IntoIter, Iter, IterMut};
+pub use indexmap::map::{IntoIter, Iter, IterMut, Entry, Keys, Values, ValuesMut, Drain};
 
 #[derive(PartialEq, Debug)]
 pub enum Error {
@@ -26,13 +28,13 @@ pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct Document {
-    inner: LinkedHashMap<String, Value>
+    inner: IndexMap<String, Value>
 }
 
 impl Document {
     pub fn new() -> Document {
         Document {
-            inner: LinkedHashMap::new()
+            inner: IndexMap::new()
         }
     }
 
@@ -44,8 +46,16 @@ impl Document {
         self.inner.get(key)
     }
 
+    pub fn get_full(&self, key: &str) -> Option<(usize, &String, &Value)> {
+        self.inner.get_full(key)
+    }
+
     pub fn get_mut(&mut self, key: &str) -> Option<&mut Value> {
         self.inner.get_mut(key)
+    }
+
+    pub fn get_mut_full(&mut self, key: &str) -> Option<(usize, &String, &mut Value)> {
+        self.inner.get_full_mut(key)
     }
 
     pub fn contains_key(&self, key: &str) -> bool {
@@ -60,16 +70,66 @@ impl Document {
         self.inner.is_empty()
     }
 
+    pub fn entry(&mut self, key: String) -> Entry<String, Value> {
+        self.inner.entry(key)
+    }
+
     pub fn insert_value(&mut self, key: String, value: Value) -> Option<Value> {
         self.inner.insert(key, value)
+    }
+
+    pub fn insert_value_full(&mut self, key: String, value: Value) -> (usize, Option<Value>) {
+        self.inner.insert_full(key, value)
     }
 
     pub fn insert<K: Into<String>, V: Into<Value>>(&mut self, key: K, value: V) -> Option<Value> {
         self.insert_value(key.into(), value.into())
     }
 
+    pub fn insert_full<K: Into<String>, V: Into<Value>>(&mut self, key: K, value: V) -> (usize, Option<Value>) {
+        self.insert_value_full(key.into(), value.into())
+    }
+
     pub fn remove(&mut self, key: &str) -> Option<Value> {
         self.inner.remove(key)
+    }
+
+    pub fn swap_remove(&mut self, key: &str) -> Option<Value> {
+        self.inner.swap_remove(key)
+    }
+
+    pub fn swap_remove_full(&mut self, key: &str) -> Option<(usize, String, Value)> {
+        self.inner.swap_remove_full(key)
+    }
+
+    pub fn pop(&mut self) -> Option<(String, Value)> {
+        self.inner.pop()
+    }
+
+    pub fn retain<F>(&mut self, keep: F)
+        where F: FnMut(&String, &mut Value) -> bool
+    {
+        self.inner.retain(keep)
+    }
+
+    pub fn sort_keys(&mut self) {
+        self.inner.sort_keys()
+    }
+
+    pub fn sort_by<F>(&mut self, compare: F)
+        where F: FnMut(&String, &Value, &String, &Value) -> Ordering
+    {
+        self.inner.sort_by(compare)
+    }
+
+    pub fn sorted_by<F>(self, compare: F) -> IntoIter<String, Value>
+        where F: FnMut(&String, &Value, &String, &Value) -> Ordering
+    {
+        self.inner.sorted_by(compare)
+    }
+
+    pub fn drain(&mut self, range: RangeFull) -> Drain<String, Value> {
+        self.inner.drain(range)
     }
 
     pub fn iter(&self) -> Iter<'_, String, Value> {
@@ -78,6 +138,18 @@ impl Document {
 
     pub fn iter_mut(&mut self) -> IterMut<'_, String, Value> {
         self.into_iter()
+    }
+
+    pub fn keys(&self) -> Keys<String, Value> {
+        self.inner.keys()
+    }
+
+    pub fn value(&self) -> Values<String, Value> {
+        self.inner.values()
+    }
+
+    pub fn value_mut(&mut self) -> ValuesMut<String, Value> {
+        self.inner.values_mut()
     }
 
     pub fn get_f64(&self, key: &str) -> Result<f64> {
@@ -208,8 +280,16 @@ impl Document {
         self.inner.extend(iter.into());
     }
 
-    pub fn front(&self) -> Option<(&String, &Value)> {
-        self.inner.front()
+    pub fn get_index(&self, index: usize) -> Option<(&String, &Value)> {
+        self.inner.get_index(index)
+    }
+
+    pub fn get_index_mut(&mut self, index: usize) -> Option<(&mut String, &mut Value)> {
+        self.inner.get_index_mut(index)
+    }
+
+    pub fn swap_remove_index(&mut self, index: usize) -> Option<(String, Value)> {
+        self.inner.swap_remove_index(index)
     }
 }
 
@@ -280,8 +360,8 @@ impl FromIterator<(String, Value)> for Document {
     }
 }
 
-impl From<LinkedHashMap<String, Value>> for Document {
-    fn from(map: LinkedHashMap<String, Value>) -> Document {
+impl From<IndexMap<String, Value>> for Document {
+    fn from(map: IndexMap<String, Value>) -> Document {
         Document { inner: map }
     }
 }
@@ -289,6 +369,7 @@ impl From<LinkedHashMap<String, Value>> for Document {
 #[cfg(test)]
 mod test {
     use crate::Document;
+    use crate::doc;
 
     #[test]
     fn to_vec() {

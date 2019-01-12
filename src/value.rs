@@ -12,6 +12,7 @@ use crate::doc::Document;
 use crate::spec::{ElementType, BinarySubtype};
 use crate::util::hex::{ToHex, FromHex};
 use crate::object_id::ObjectId;
+use crate::doc;
 
 #[derive(Clone, PartialEq)]
 pub enum Value {

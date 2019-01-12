@@ -232,6 +232,7 @@ mod test {
     use std::io::Cursor;
     use crate::encode::encode_document;
     use crate::decode::decode_document;
+    use crate::doc;
 
     #[test]
     fn encode() {
