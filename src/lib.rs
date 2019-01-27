@@ -1,5 +1,5 @@
-pub use self::value::Value;
-pub use self::doc::Document;
+pub use value::Value;
+pub use doc::Document;
 
 mod macros;
 pub mod value;
