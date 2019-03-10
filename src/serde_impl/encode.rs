@@ -4,7 +4,7 @@ use serde::ser::{Serialize, Serializer, SerializeSeq, SerializeTuple, SerializeT
                  SerializeTupleVariant, SerializeMap, SerializeStruct, SerializeStructVariant};
 
 use crate::doc::Document;
-use crate::value::{Value, Array, UTCDateTime};
+use crate::value::{Value, Array, UTCDateTime, TimeStamp};
 use crate::encode::to_bson;
 use crate::encode::EncodeError;
 use crate::encode::EncodeResult;
@@ -178,9 +178,7 @@ impl Serializer for Encoder {
     ) -> EncodeResult<Value>
         where T: Serialize
     {
-        let mut ser = TupleStructSerializer { inner: Array::new() };
-        ser.serialize_field(value)?;
-        ser.end()
+        value.serialize(self)
     }
 
     #[inline]
@@ -193,12 +191,9 @@ impl Serializer for Encoder {
     ) -> EncodeResult<Value>
         where T: Serialize
     {
-        let mut ser = TupleVariantSerializer {
-            inner: Array::new(),
-            name: variant,
-        };
-        ser.serialize_field(value)?;
-        ser.end()
+        let mut newtype_variant = Document::new();
+        newtype_variant.insert(variant, to_bson(value)?);
+        Ok(newtype_variant.into())
     }
 
     #[inline]
@@ -337,13 +332,8 @@ impl SerializeTupleVariant for TupleVariantSerializer {
 
     fn end(self) -> EncodeResult<Value> {
         let mut tuple_variant = Document::new();
-        if self.inner.len() == 1 {
-            tuple_variant.insert(self.name, self.inner.into_iter().next().unwrap());
-        } else {
-            tuple_variant.insert(self.name, Value::Array(self.inner));
-        }
-
-        Ok(Value::Document(tuple_variant))
+        tuple_variant.insert(self.name, self.inner);
+        Ok(tuple_variant.into())
     }
 }
 
@@ -436,3 +426,13 @@ impl Serialize for UTCDateTime {
     }
 }
 
+impl Serialize for TimeStamp {
+    #[inline]
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        let ts = ((self.t.to_le() as u64) << 32) | (self.i.to_le() as u64);
+        let doc = Value::TimeStamp(ts as i64);
+        doc.serialize(serializer)
+    }
+}

@@ -188,15 +188,13 @@ impl From<bool> for Value {
 }
 
 impl From<(String, String)> for Value {
-    fn from(r: (String, String)) -> Value {
-        let (r1, r2) = r;
+    fn from((r1, r2): (String, String)) -> Value {
         Value::RegExp(r1, r2)
     }
 }
 
 impl From<(BinarySubtype, Vec<u8>)> for Value {
-    fn from(b: (BinarySubtype, Vec<u8>)) -> Value {
-        let (b1, b2) = b;
+    fn from((b1, b2): (BinarySubtype, Vec<u8>)) -> Value {
         Value::Binary(b1, b2)
     }
 }
@@ -644,7 +642,7 @@ impl FromIterator<Value> for Array {
     }
 }
 
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub struct UTCDateTime(pub DateTime<Utc>);
 
 impl Deref for UTCDateTime {
@@ -671,4 +669,10 @@ impl From<DateTime<Utc>> for UTCDateTime {
     fn from(x: DateTime<Utc>) -> Self {
         UTCDateTime(x)
     }
+}
+
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
+pub struct TimeStamp {
+    pub t: u32,
+    pub i: u32,
 }

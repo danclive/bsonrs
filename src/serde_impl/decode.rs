@@ -10,7 +10,7 @@ use serde::de::{Error, Expected, Unexpected};
 
 use indexmap::IndexMap;
 
-use crate::value::{Value, Array, UTCDateTime};
+use crate::value::{Value, Array, UTCDateTime, TimeStamp};
 use crate::doc::{Document, IntoIter};
 use crate::decode::DecodeError;
 use crate::decode::DecodeResult;
@@ -688,6 +688,26 @@ impl<'de> Deserialize<'de> for UTCDateTime {
 
         match Value::deserialize(deserializer)? {
             Value::UTCDatetime(dt) => Ok(UTCDateTime(dt)),
+            _ => Err(D::Error::custom("expecting UtcDateTime")),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for TimeStamp {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        use serde::de::Error;
+
+        match Value::deserialize(deserializer)? {
+            Value::TimeStamp(ts) => {
+                let ts = ts.to_le();
+
+                Ok(TimeStamp {
+                    t: ((ts as u64) >> 32) as u32,
+                    i: (ts & 0xFFFF_FFFF) as u32,
+                })
+            }
             _ => Err(D::Error::custom("expecting UtcDateTime")),
         }
     }
