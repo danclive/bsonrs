@@ -1,6 +1,6 @@
 [package]
 name          = "bsonrs"
-version       = "0.1.4"
+version       = "0.1.5"
 license       = "MIT"
 authors       = ["danc <dangcheng@hotmail.com>"]
 description   = "bson data-interchange format"

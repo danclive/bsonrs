@@ -1,5 +1,6 @@
 pub use value::Value;
 pub use doc::Document;
+pub use object_id::ObjectId;
 
 mod macros;
 pub mod value;

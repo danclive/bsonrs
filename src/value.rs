@@ -181,6 +181,12 @@ impl From<Document> for Value {
     }
 }
 
+impl From<Vec<Document>> for Value {
+    fn from(v: Vec<Document>) -> Value {
+        Value::Array(v.into())
+    }
+}
+
 impl From<bool> for Value {
     fn from(b: bool) -> Value {
         Value::Boolean(b)
