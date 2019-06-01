@@ -684,8 +684,6 @@ impl<'de> Deserialize<'de> for UTCDateTime {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where D: Deserializer<'de>
     {
-        use serde::de::Error;
-
         match Value::deserialize(deserializer)? {
             Value::UTCDatetime(dt) => Ok(UTCDateTime(dt)),
             _ => Err(D::Error::custom("expecting UtcDateTime")),
@@ -697,8 +695,6 @@ impl<'de> Deserialize<'de> for TimeStamp {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where D: Deserializer<'de>
     {
-        use serde::de::Error;
-
         match Value::deserialize(deserializer)? {
             Value::TimeStamp(ts) => {
                 let ts = ts.to_le();
