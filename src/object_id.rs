@@ -158,13 +158,11 @@ fn timestamp() -> [u8; 4] {
 
 #[inline]
 fn hosename() -> Option<String> {
-
-    let len = 255;
-    let mut buf = Vec::<u8>::with_capacity(len);
+    let mut buf = [0u8; 255];
     let ptr = buf.as_mut_ptr() as *mut libc::c_char;
 
     unsafe {
-        if libc::gethostname(ptr, len as libc::size_t) != 0 {
+        if libc::gethostname(ptr, buf.len() as libc::size_t) != 0 {
             return None;
         }
 

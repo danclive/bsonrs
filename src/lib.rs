@@ -1,4 +1,4 @@
-pub use value::Value;
+pub use value::{Value, Array};
 pub use doc::Document;
 pub use object_id::ObjectId;
 

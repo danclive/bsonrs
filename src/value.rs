@@ -181,11 +181,11 @@ impl From<Document> for Value {
     }
 }
 
-impl From<Vec<Document>> for Value {
-    fn from(v: Vec<Document>) -> Value {
-        Value::Array(v.into())
-    }
-}
+// impl From<Vec<Document>> for Value {
+//     fn from(v: Vec<Document>) -> Value {
+//         Value::Array(v.into())
+//     }
+// }
 
 impl From<bool> for Value {
     fn from(b: bool) -> Value {
@@ -229,11 +229,29 @@ impl From<DateTime<Utc>> for Value {
     }
 }
 
-impl From<Vec<Vec<u8>>> for Value {
-    fn from(vec: Vec<Vec<u8>>) -> Value {
-        let array: Array = vec.into_iter().map(|v| v.into()).collect();
-        Value::Array(array)
+// impl From<Vec<Vec<u8>>> for Value {
+//     fn from(vec: Vec<Vec<u8>>) -> Value {
+//         let array: Array = vec.into_iter().map(|v| v.into()).collect();
+//         Value::Array(array)
+//     }
+// }
+
+macro_rules! value_from_impls {
+    ($($T:ty)+) => {
+        $(
+            impl From<Vec<$T>> for Value {
+                fn from(vec: Vec<$T>) -> Value {
+                    // vec.into_iter().map(|v| v.into()).collect()
+                    Value::Array(vec.into())
+                }
+            }
+        )+
     }
+}
+
+value_from_impls! {
+    f32 f64 i32 i64 &str String &String Array
+    Document bool DateTime<Utc> Vec<u8>
 }
 
 impl Value {
@@ -592,7 +610,7 @@ impl DerefMut for Array {
     }
 }
 
-macro_rules! from_impls {
+macro_rules! array_from_impls {
     ($($T:ty)+) => {
         $(
             impl From<Vec<$T>> for Array {
@@ -604,7 +622,7 @@ macro_rules! from_impls {
     }
 }
 
-from_impls! {
+array_from_impls! {
     f32 f64 i32 i64 &str String &String Array
     Document bool DateTime<Utc> Vec<u8>
 }
