@@ -82,11 +82,11 @@ impl Document {
         self.inner.insert_full(key, value)
     }
 
-    pub fn insert<K: Into<String>, V: Into<Value>>(&mut self, key: K, value: V) -> Option<Value> {
+    pub fn insert(&mut self, key: impl Into<String>, value: impl Into<Value>) -> Option<Value> {
         self.insert_value(key.into(), value.into())
     }
 
-    pub fn insert_full<K: Into<String>, V: Into<Value>>(&mut self, key: K, value: V) -> (usize, Option<Value>) {
+    pub fn insert_full(&mut self, key: impl Into<String>, value: impl Into<Value>) -> (usize, Option<Value>) {
         self.insert_value_full(key.into(), value.into())
     }
 
@@ -244,11 +244,11 @@ impl Document {
         }
     }
 
-    pub fn encode(&self, writer: &mut (impl Write + ?Sized)) -> EncodeResult<()> {
+    pub fn encode(&self, writer: &mut impl Write) -> EncodeResult<()> {
         encode_document(writer, self)
     }
 
-    pub fn decode(reader: &mut (impl Read + ?Sized)) -> DecodeResult<Document> {
+    pub fn decode(reader: &mut impl Read) -> DecodeResult<Document> {
         decode_document(reader)
     }
 
@@ -276,7 +276,7 @@ impl Document {
         decode_document(&mut reader)
     }
 
-    pub fn extend<I: Into<Document>>(&mut self, iter: I) {
+    pub fn extend(&mut self, iter: impl Into<Document>) {
         self.inner.extend(iter.into());
     }
 

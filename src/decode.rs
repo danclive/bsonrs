@@ -109,7 +109,7 @@ impl error::Error for DecodeError {
 
 pub type DecodeResult<T> = Result<T, DecodeError>;
 
-pub(crate) fn read_string<R: Read + ?Sized>(reader: &mut R) -> DecodeResult<String> {
+pub(crate) fn read_string(reader: &mut impl Read) -> DecodeResult<String> {
     let len = reader.read_i32::<LittleEndian>()?;
 
     if len < 1 || len > MAX_BSON_SIZE {
@@ -125,7 +125,7 @@ pub(crate) fn read_string<R: Read + ?Sized>(reader: &mut R) -> DecodeResult<Stri
     Ok(s)
 }
 
-pub(crate) fn read_cstring<R: Read + ?Sized>(reader: &mut R) -> DecodeResult<String> {
+pub(crate) fn read_cstring(reader: &mut impl Read) -> DecodeResult<String> {
     let mut v = Vec::new();
 
     loop {
@@ -140,16 +140,16 @@ pub(crate) fn read_cstring<R: Read + ?Sized>(reader: &mut R) -> DecodeResult<Str
 }
 
 #[inline]
-pub(crate) fn read_i32<R: Read + ?Sized>(reader: &mut R) -> DecodeResult<i32> {
+pub(crate) fn read_i32(reader: &mut impl Read) -> DecodeResult<i32> {
     reader.read_i32::<LittleEndian>().map_err(From::from)
 }
 
 #[inline]
-pub(crate) fn read_i64<R: Read + ?Sized>(reader: &mut R) -> DecodeResult<i64> {
+pub(crate) fn read_i64(reader: &mut impl Read) -> DecodeResult<i64> {
     reader.read_i64::<LittleEndian>().map_err(From::from)
 }
 
-fn decode_array<R: Read + ?Sized>(reader: &mut R) -> DecodeResult<Array> {
+fn decode_array(reader: &mut impl Read) -> DecodeResult<Array> {
     let mut arr = Array::new();
 
     // disregard the length: using Read::take causes infinite type recursion
@@ -179,7 +179,7 @@ fn decode_array<R: Read + ?Sized>(reader: &mut R) -> DecodeResult<Array> {
     Ok(arr)
 }
 
-fn decode_bson<R: Read + ?Sized>(reader: &mut R, tag: u8) -> DecodeResult<Value> {
+fn decode_bson(reader: &mut impl Read, tag: u8) -> DecodeResult<Value> {
     match ElementType::from(tag) {
         Some(ElementType::Double) => {
             Ok(Value::Double(reader.read_f64::<LittleEndian>()?))
@@ -270,7 +270,7 @@ fn decode_bson<R: Read + ?Sized>(reader: &mut R, tag: u8) -> DecodeResult<Value>
     }
 }
 
-pub fn decode_document<R: Read + ?Sized>(reader: &mut R) -> DecodeResult<Document> {
+pub fn decode_document(reader: &mut impl Read) -> DecodeResult<Document> {
     let mut doc = Document::new();
 
     // disregard the length: using Read::take causes infinite type recursion
