@@ -697,6 +697,6 @@ impl From<DateTime<Utc>> for UTCDateTime {
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub struct TimeStamp {
-    pub t: u32,
-    pub i: u32,
+    pub timestamp: u32,
+    pub increment: u32,
 }

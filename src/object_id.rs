@@ -34,11 +34,11 @@ impl ObjectId {
     ///
     /// println!("{:?}", id);
     /// ```
-    pub fn new() -> Result<Self> {
+    pub fn new() -> ObjectId {
         let timestamp = timestamp();
         let machine_id = machine_id();
         let process_id = process_id();
-        let counter = gen_count()?;
+        let counter = gen_count();
 
         let mut buf: [u8; 12] = [0; 12];
 
@@ -58,9 +58,9 @@ impl ObjectId {
         buf[10] = counter[1];
         buf[11] = counter[2];
 
-        Ok(ObjectId {
+        ObjectId {
             bytes: buf
-        })
+        }
     }
 
     /// Generate an ObjectId with bytes
@@ -206,12 +206,12 @@ fn process_id() -> [u8; 2] {
 }
 
 #[inline]
-fn gen_count() -> Result<[u8; 3]> {
+fn gen_count() -> [u8; 3] {
 
     const MAX_U24: usize = 0x00FF_FFFF;
 
     if OID_COUNTER.load(Ordering::SeqCst) == 0 {
-        let mut rng = OsRng::new()?;
+        let mut rng = OsRng;
         let start = rng.gen_range(0, MAX_U24 + 1);
         OID_COUNTER.store(start, Ordering::SeqCst); 
     }
@@ -222,8 +222,8 @@ fn gen_count() -> Result<[u8; 3]> {
 
     let mut buf: [u8; 8] = [0; 8];
     BigEndian::write_u64(&mut buf, u as u64);
-    let buf_u24: [u8; 3] = [buf[5], buf[6], buf[7]];
-    Ok(buf_u24)
+
+    [buf[5], buf[6], buf[7]]
 }
 
 #[derive(Debug)]

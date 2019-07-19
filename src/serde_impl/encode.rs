@@ -431,7 +431,7 @@ impl Serialize for TimeStamp {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where S: Serializer
     {
-        let ts = ((self.t.to_le() as u64) << 32) | (self.i.to_le() as u64);
+        let ts = ((self.timestamp.to_le() as u64) << 32) | (self.increment.to_le() as u64);
         let doc = Value::TimeStamp(ts as i64);
         doc.serialize(serializer)
     }

@@ -700,8 +700,8 @@ impl<'de> Deserialize<'de> for TimeStamp {
                 let ts = ts.to_le();
 
                 Ok(TimeStamp {
-                    t: ((ts as u64) >> 32) as u32,
-                    i: (ts & 0xFFFF_FFFF) as u32,
+                    timestamp: ((ts as u64) >> 32) as u32,
+                    increment: (ts & 0xFFFF_FFFF) as u32,
                 })
             }
             _ => Err(D::Error::custom("expecting UtcDateTime")),

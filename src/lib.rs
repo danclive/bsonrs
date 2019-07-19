@@ -11,6 +11,7 @@ pub mod serde_impl;
 mod spec;
 mod util;
 pub mod object_id;
+pub mod error;
 
 #[cfg(test)]
 mod test {
