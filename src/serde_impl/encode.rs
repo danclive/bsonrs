@@ -432,7 +432,7 @@ impl Serialize for TimeStamp {
         where S: Serializer
     {
         let ts = ((self.timestamp.to_le() as u64) << 32) | (self.increment.to_le() as u64);
-        let doc = Value::TimeStamp(ts as i64);
+        let doc = Value::TimeStamp(ts);
         doc.serialize(serializer)
     }
 }

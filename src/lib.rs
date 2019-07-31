@@ -11,7 +11,6 @@ pub mod serde_impl;
 mod spec;
 mod util;
 pub mod object_id;
-pub mod error;
 
 #[cfg(test)]
 mod test {
@@ -21,6 +20,7 @@ mod test {
 	use crate::decode::from_bson;
 	use crate::Value;
 	use crate::doc;
+	use crate::value::TimeStamp;
 
 	#[derive(Serialize, Deserialize, Debug, PartialEq)]
 	pub struct Foo {
@@ -28,7 +28,8 @@ mod test {
 		c: f64,
 		d: String,
 		#[serde(with = "serde_bytes")]
-		e: Vec<u8>
+		e: Vec<u8>,
+		f: TimeStamp
 	}
 
 	#[test]
@@ -37,7 +38,11 @@ mod test {
 			b: 2,
 			c: 3.0,
 			d: "4".to_string(),
-			e: vec![1, 2, 3, 4]
+			e: vec![1, 2, 3, 4],
+			f: TimeStamp {
+				timestamp: 123,
+				increment: 456
+			}
 		};
 
 		let bson = to_bson(&foo).unwrap();
@@ -52,7 +57,11 @@ mod test {
 			b: 2,
 			c: 3.0,
 			d: "4".to_string(),
-			e: vec![1, 2, 3, 4]
+			e: vec![1, 2, 3, 4],
+			f: TimeStamp {
+				timestamp: 123,
+				increment: 456
+			}
 		};
 
 		let bson = to_bson(&foo).unwrap();

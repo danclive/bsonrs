@@ -30,7 +30,7 @@ impl ObjectId {
     /// ```
     /// use bsonrs::object_id::ObjectId;
     ///
-    /// let id = ObjectId::new().unwrap();
+    /// let id = ObjectId::new();
     ///
     /// println!("{:?}", id);
     /// ```

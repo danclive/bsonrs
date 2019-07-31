@@ -1,6 +1,6 @@
 use std::fmt;
 use std::ops::{Deref, DerefMut};
-use std::{f64, i64};
+use std::{f64, i64, u64};
 use std::iter::FromIterator;
 
 use chrono::{DateTime, Utc, Timelike};
@@ -27,7 +27,7 @@ pub enum Value {
     JavaScriptCodeWithScope(String, Document),
     Int32(i32),
     Int64(i64),
-    TimeStamp(i64),
+    TimeStamp(u64),
     Binary(BinarySubtype, Vec<u8>),
     ObjectId(ObjectId),
     UTCDatetime(DateTime<Utc>),
@@ -58,8 +58,8 @@ impl fmt::Debug for Value {
             Value::Int32(v) => write!(fmt, "Int32({:?})", v),
             Value::Int64(v) => write!(fmt, "Int64({:?})", v),
             Value::TimeStamp(i) => {
-                let time = (i >> 32) as i32;
-                let inc = (i & 0xFFFF_FFFF) as i32;
+                let time = (i >> 32) as u32;
+                let inc = (i & 0xFFFF_FFFF) as u32;
 
                 write!(fmt, "TimeStamp({}, {})", time, inc)
             }
@@ -100,8 +100,8 @@ impl fmt::Display for Value {
             Value::Int32(i) => write!(fmt, "{}", i),
             Value::Int64(i) => write!(fmt, "{}", i),
             Value::TimeStamp(i) => {
-                let time = (i >> 32) as i32;
-                let inc = (i & 0xFFFF_FFFF) as i32;
+                let time = (i >> 32) as u32;
+                let inc = (i & 0xFFFF_FFFF) as u32;
 
                 write!(fmt, "Timestamp({}, {})", time, inc)
             }
@@ -181,12 +181,6 @@ impl From<Document> for Value {
     }
 }
 
-// impl From<Vec<Document>> for Value {
-//     fn from(v: Vec<Document>) -> Value {
-//         Value::Array(v.into())
-//     }
-// }
-
 impl From<bool> for Value {
     fn from(b: bool) -> Value {
         Value::Boolean(b)
@@ -229,19 +223,11 @@ impl From<DateTime<Utc>> for Value {
     }
 }
 
-// impl From<Vec<Vec<u8>>> for Value {
-//     fn from(vec: Vec<Vec<u8>>) -> Value {
-//         let array: Array = vec.into_iter().map(|v| v.into()).collect();
-//         Value::Array(array)
-//     }
-// }
-
 macro_rules! value_from_impls {
     ($($T:ty)+) => {
         $(
             impl From<Vec<$T>> for Value {
                 fn from(vec: Vec<$T>) -> Value {
-                    // vec.into_iter().map(|v| v.into()).collect()
                     Value::Array(vec.into())
                 }
             }
@@ -346,7 +332,7 @@ impl Value {
         }
     }
 
-    pub fn as_timestamp(&self) -> Option<i64> {
+    pub fn as_timestamp(&self) -> Option<u64> {
         match *self {
             Value::TimeStamp(v) => Some(v),
             _ => None,
@@ -392,8 +378,8 @@ impl Value {
                 }
             }
             Value::TimeStamp(v) => {
-                let time = (v >> 32) as i32;
-                let inc = (v & 0xFFFF_FFFF) as i32;
+                let time = (v >> 32) as i64;
+                let inc = (v & 0xFFFF_FFFF) as i64;
 
                 doc!{
                     "t": time,
@@ -404,7 +390,7 @@ impl Value {
                 let tval: u8 = From::from(t);
                 doc!{
                     "$binary": v.to_hex(),
-                    "type": i64::from(tval)
+                    "type": i32::from(tval)
                 }
             }
             Value::ObjectId(ref v) => {
@@ -439,13 +425,13 @@ impl Value {
 
             } else if let (Ok(t), Ok(i)) = (values.get_i32("t"), values.get_i32("i")) {
                 let timestamp = (i64::from(t) << 32) + i64::from(i);
-                return Value::TimeStamp(timestamp);
+                return Value::TimeStamp(timestamp as u64);
 
             } else if let (Ok(t), Ok(i)) = (values.get_i64("t"), values.get_i64("i")) {
                 let timestamp = (t << 32) + i;
-                return Value::TimeStamp(timestamp);
+                return Value::TimeStamp(timestamp as u64);
 
-            } else if let (Ok(hex), Ok(t)) = (values.get_str("$binary"), values.get_i64("type")) {
+            } else if let (Ok(hex), Ok(t)) = (values.get_str("$binary"), values.get_i32("type")) {
                 let ttype = t as u8;
                 return Value::Binary(From::from(ttype), FromHex::from_hex(hex.as_bytes()).unwrap());
             }

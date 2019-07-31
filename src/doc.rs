@@ -228,7 +228,7 @@ impl Document {
         }
     }
 
-    pub fn get_time_stamp(&self, key: &str) -> Result<i64> {
+    pub fn get_time_stamp(&self, key: &str) -> Result<u64> {
         match self.get(key) {
             Some(&Value::TimeStamp(v)) => Ok(v),
             Some(_) => Err(Error::UnexpectedType),

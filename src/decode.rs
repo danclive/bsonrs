@@ -149,6 +149,11 @@ pub(crate) fn read_i64(reader: &mut impl Read) -> DecodeResult<i64> {
     reader.read_i64::<LittleEndian>().map_err(From::from)
 }
 
+#[inline]
+pub(crate) fn read_u64(reader: &mut impl Read) -> DecodeResult<u64> {
+    reader.read_u64::<LittleEndian>().map_err(From::from)
+}
+
 fn decode_array(reader: &mut impl Read) -> DecodeResult<Array> {
     let mut arr = Array::new();
 
@@ -243,7 +248,7 @@ fn decode_bson(reader: &mut impl Read, tag: u8) -> DecodeResult<Value> {
             read_i64(reader).map(Value::Int64)
         }
         Some(ElementType::TimeStamp) => {
-            read_i64(reader).map(Value::TimeStamp)
+            read_u64(reader).map(Value::TimeStamp)
         }
         Some(ElementType::UTCDatetime) => {
             let time = read_i64(reader)?;

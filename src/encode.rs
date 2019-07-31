@@ -87,6 +87,11 @@ pub(crate) fn write_i64(writer: &mut impl Write, val: i64) -> EncodeResult<()> {
 }
 
 #[inline]
+pub(crate) fn write_u64(writer: &mut impl Write, val: u64) -> EncodeResult<()> {
+    writer.write_u64::<LittleEndian>(val).map_err(From::from)
+}
+
+#[inline]
 pub(crate) fn write_f64(writer: &mut impl Write, val: f64) -> EncodeResult<()> {
     writer.write_f64::<LittleEndian>(val).map_err(From::from)
 }
@@ -153,7 +158,7 @@ pub fn encode_bson(writer: &mut impl Write, key: &str, val: &Value) -> EncodeRes
         }
         Value::Int32(v) => write_i32(writer, v),
         Value::Int64(v) => write_i64(writer, v),
-        Value::TimeStamp(v) => write_i64(writer, v),
+        Value::TimeStamp(v) => write_u64(writer, v),
         Value::Binary(subtype, ref data) => {
             write_i32(writer, data.len() as i32)?;
             writer.write_u8(From::from(subtype))?;
