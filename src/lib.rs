@@ -32,6 +32,13 @@ mod test {
 		f: TimeStamp
 	}
 
+	#[derive(Serialize, Deserialize, Debug, PartialEq)]
+	pub struct Bar {
+		b: i64,
+		c: f64,
+		d: String
+	}
+
 	#[test]
 	fn serialize_and_deserialize() {
 		let foo = Foo {
@@ -53,15 +60,10 @@ mod test {
 
 	#[test]
 	fn into_and_from_json() {
-		let foo = Foo {
+		let foo = Bar {
 			b: 2,
 			c: 3.0,
-			d: "4".to_string(),
-			e: vec![1, 2, 3, 4],
-			f: TimeStamp {
-				timestamp: 123,
-				increment: 456
-			}
+			d: "4".to_string()
 		};
 
 		let bson = to_bson(&foo).unwrap();

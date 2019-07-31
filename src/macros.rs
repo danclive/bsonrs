@@ -241,9 +241,9 @@ macro_rules! bson {
 /// ```
 #[macro_export]
 macro_rules! doc {
-    () => {{ $crate::doc::Document::new() }};
+    () => {{ $crate::doc::Document::with_capacity(8) }};
     ( $($tt:tt)+ ) => {{
-        let mut object = $crate::doc::Document::new();
+        let mut object = $crate::doc::Document::with_capacity(8);
         $crate::bson!(@object object () ($($tt)+) ($($tt)+));
         object
     }};
