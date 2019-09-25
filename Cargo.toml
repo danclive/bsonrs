@@ -1,6 +1,6 @@
 [package]
 name          = "bsonrs"
-version       = "0.2.3"
+version       = "0.2.4"
 license       = "MIT"
 authors       = ["danc <dangcheng@hotmail.com>"]
 description   = "bson data-interchange format"
@@ -18,7 +18,7 @@ exclude       = [
 ]
 
 [dependencies]
-indexmap = "1.0"
+indexmap = "1.2"
 chrono = "0.4"
 byteorder = "1.1"
 serde = "1.0"

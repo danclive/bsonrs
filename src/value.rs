@@ -237,12 +237,12 @@ macro_rules! value_from_impls {
 
 value_from_impls! {
     f32 f64 i32 i64 &str String &String Array
-    Document bool DateTime<Utc> Vec<u8>
+    Document bool DateTime<Utc> Vec<u8> ObjectId
 }
 
 impl Value {
     pub fn element_type(&self) -> ElementType {
-        match *self {
+        match self {
             Value::Double(..) => ElementType::Double,
             Value::String(..) => ElementType::Utf8String,
             Value::Array(..) => ElementType::Array,
@@ -263,86 +263,93 @@ impl Value {
     }
 
     pub fn as_f64(&self) -> Option<f64> {
-        match *self {
+        match self {
             Value::Double(ref v) => Some(*v),
             _ => None,
         }
     }
 
     pub fn as_str(&self) -> Option<&str> {
-        match *self {
+        match self {
             Value::String(ref s) => Some(s),
             _ => None,
         }
     }
 
     pub fn as_array(&self) -> Option<&Array> {
-        match *self {
+        match self {
             Value::Array(ref v) => Some(v),
             _ => None,
         }
     }
 
     pub fn as_document(&self) -> Option<&Document> {
-        match *self {
+        match self {
             Value::Document(ref v) => Some(v),
             _ => None,
         }
     }
 
     pub fn as_bool(&self) -> Option<bool> {
-        match *self {
+        match self {
             Value::Boolean(ref v) => Some(*v),
             _ => None,
         }
     }
 
     pub fn as_i32(&self) -> Option<i32> {
-        match *self {
+        match self {
             Value::Int32(ref v) => Some(*v),
             _ => None,
         }
     }
 
     pub fn as_i64(&self) -> Option<i64> {
-        match *self {
+        match self {
             Value::Int64(ref v) => Some(*v),
             _ => None,
         }
     }
 
     pub fn as_object_id(&self) -> Option<&ObjectId> {
-        match *self {
+        match self {
             Value::ObjectId(ref v) => Some(v),
             _ => None,
         }
     }
 
     pub fn as_utc_date_time(&self) -> Option<&DateTime<Utc>> {
-        match *self {
+        match self {
             Value::UTCDatetime(ref v) => Some(v),
             _ => None,
         }
     }
 
     pub fn as_symbol(&self) -> Option<&str> {
-        match *self {
+        match self {
             Value::Symbol(ref v) => Some(v),
             _ => None,
         }
     }
 
     pub fn as_timestamp(&self) -> Option<u64> {
-        match *self {
-            Value::TimeStamp(v) => Some(v),
+        match self {
+            Value::TimeStamp(v) => Some(*v),
             _ => None,
         }
     }
 
     pub fn as_null(&self) -> Option<()> {
-        match *self {
+        match self {
             Value::Null => Some(()),
             _ => None,
+        }
+    }
+
+    pub fn as_binary(&self) -> Option<(BinarySubtype, &[u8])> {
+        match self {
+            Value::Binary(t, d) => Some((*t, d)),
+            _ => None
         }
     }
 
@@ -359,7 +366,7 @@ impl Value {
     }
 
     pub fn to_extended_document(&self) -> Document {
-        match *self {
+        match self {
             Value::RegExp(ref pat, ref opt) => {
                 doc!{
                     "$regex": pat.clone(),
@@ -387,7 +394,7 @@ impl Value {
                 }
             }
             Value::Binary(t, ref v) => {
-                let tval: u8 = From::from(t);
+                let tval: u8 = From::from(*t);
                 doc!{
                     "$binary": v.to_hex(),
                     "type": i32::from(tval)
@@ -610,7 +617,7 @@ macro_rules! array_from_impls {
 
 array_from_impls! {
     f32 f64 i32 i64 &str String &String Array
-    Document bool DateTime<Utc> Vec<u8>
+    Document bool DateTime<Utc> Vec<u8> ObjectId
 }
 
 impl IntoIterator for Array {
